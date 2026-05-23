@@ -78,6 +78,7 @@ function generatePixelArt(url) {
 
 async function fetchMeta(url) {
   return { title: dm(url) };
+}
 
 async function go() {
   const lines = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
@@ -90,7 +91,7 @@ async function go() {
   
   await Promise.all(urls.map(async (item, i) => {
     const m = item.title || await fetchMeta(item.url);
-    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(item.url)}" alt=""><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true" onblur="">${esc(typeof m === 'string' ? m : m.title)}"</div></div></a>`;
+    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(item.url)}" alt=""><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true">${esc(typeof m === 'string' ? m : m.title)}</div></div></a>`;
     document.getElementById('c' + i).className = 'card';
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
