@@ -11,7 +11,11 @@
 <body>
 
 <h1><b>⊞ grink:</b> a URL-based link grid generator</h1>
-<p style="font-size:12px;color:#666;margin-bottom:20px;margin-top:-20px">Paste any number of links in the text box, select grid size, click "build", then copy the link to share it.</p>
+<p style="font-size:12px;color:#666;margin-bottom:20px;margin-top:-20px">Paste any number of links in the text box, select grid size, click "build", then copy the link to share it. Optionally add titles: <code>url | title</code></p>
+
+<div class="row">
+  <textarea id="gt" placeholder="grid title (optional)" style="width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block;margin-bottom:12px"></textarea>
+</div>
 
 <div class="row">
   <textarea id="u" rows="1" placeholder="paste urls here…"></textarea>
@@ -29,6 +33,7 @@
 
 <script>
 const ta = document.getElementById('u');
+const gt = document.getElementById('gt');
 const msg = document.getElementById('msg');
 const sizeSlider = document.getElementById('size');
 sizeSlider?.addEventListener('input', () => document.documentElement.style.setProperty('--size', sizeSlider.value + 'px'));
@@ -72,38 +77,33 @@ function generatePixelArt(url) {
 }
 
 async function fetchMeta(url) {
-  try {
-    const r = await fetch(`https://jsonlink.io/api/?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) throw new Error();
-    const data = await r.json();
-    return { title: data.title || dm(url) };
-  } catch {
-    return { title: dm(url) };
-  }
-}
+  return { title: dm(url) };
 
 async function go() {
-  const urls = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
+  const lines = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
+  const urls = lines.map(l => { const p = l.split('|'); return { url: p[0].trim(), title: p[1]?.trim() || '' }; });
   if (!urls.length) return;
   const grid = document.getElementById('grid');
   grid.innerHTML = urls.map((_, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
   msg.textContent = `⧗ 0 / ${urls.length}`;
   let done = 0;
   
-  await Promise.all(urls.map(async (url, i) => {
-    const m = await fetchMeta(url);
-    document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(url)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(m.title)}</div></div></a>`;
+  await Promise.all(urls.map(async (item, i) => {
+    const m = item.title || await fetchMeta(item.url);
+    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(item.url)}" alt=""><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true" onblur="">${esc(typeof m === 'string' ? m : m.title)}"</div></div></a>`;
     document.getElementById('c' + i).className = 'card';
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
   
-  const enc = btoa(unescape(encodeURIComponent(urls.join('\n'))));
+  const data = { urls: urls.map(u => u.url), titles: urls.map((u, i) => document.querySelector(`#c${i} .tt`)?.textContent || u.title || dm(u.url)), gridTitle: gt.value };
+  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const size = sizeSlider.value;
   msg.innerHTML = `<span onclick="navigator.clipboard.writeText(this.dataset.u).then(()=>this.textContent='✓ copied')" data-u="${esc(`${location.origin}${location.pathname}?g=${enc}&s=${size}`)}">⎘ copy link</span>`;
 }
 
 const clearAll = () => {
   ta.value = '';
+  gt.value = '';
   resize();
   document.getElementById('grid').innerHTML = '';
   msg.innerHTML = '';
@@ -119,7 +119,27 @@ const clearAll = () => {
   document.querySelectorAll('.row').forEach(r => r.classList.add('hidden'));
   document.getElementById('msg').style.display = 'none';
   if (s) { sizeSlider.value = s; document.documentElement.style.setProperty('--size', s + 'px'); }
-  try { ta.value = decodeURIComponent(escape(atob(g))); resize(); go(); } catch {}
+  try {
+    const data = JSON.parse(decodeURIComponent(escape(atob(g))));
+    if (data.gridTitle) {
+      const title = document.createElement('h2');
+      title.textContent = data.gridTitle;
+      title.style.cssText = 'font-size:16px;font-weight:normal;margin-bottom:24px;text-align:center';
+      document.body.insertBefore(title, document.getElementById('grid'));
+    }
+    const urls = data.urls || data.split('\n');
+    ta.value = urls.join('\n');
+    resize();
+    setTimeout(() => {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = urls.map((url, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
+      Promise.all(urls.map(async (url, i) => {
+        const title = data.titles?.[i] || dm(url);
+        document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(url)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div></a>`;
+        document.getElementById('c' + i).className = 'card';
+      }));
+    }, 0);
+  } catch {}
 })();
 </script>
 </body>
