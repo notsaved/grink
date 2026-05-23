@@ -44,9 +44,33 @@ ta.addEventListener('input', () => {
 ta.addEventListener('keydown', () => setTimeout(resize, 0));
 
 const proxies = [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`];
-const imgProxy = u => `https://corsproxy.io/?${encodeURIComponent(u)}`;
 const dm = u => {try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}};
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function generatePixelArt(url) {
+  let hash = 0;
+  for (let i = 0; i < url.length; i++) {
+    hash = ((hash << 5) - hash) + url.charCodeAt(i);
+    hash = hash & hash;
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = 200;
+  canvas.height = 112;
+  const ctx = canvas.getContext('2d');
+  let seed = Math.abs(hash);
+  const random = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  const cols = 40, rows = 22;
+  const px = 200 / cols;
+  const py = 112 / rows;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const v = Math.floor(random() * 256);
+      ctx.fillStyle = `rgb(${v},${v},${v})`;
+      ctx.fillRect(x * px, y * py, px, py);
+    }
+  }
+  return canvas.toDataURL();
+}
 
 async function fetchMeta(url) {
   for (const p of proxies) {
@@ -58,12 +82,10 @@ async function fetchMeta(url) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const g = (s, a) => doc.querySelector(s)?.getAttribute(a)?.trim() || '';
       const title = g('meta[property="og:title"]','content') || g('meta[name="twitter:title"]','content') || doc.title || dm(url);
-      let img = g('meta[property="og:image"]','content') || g('meta[name="twitter:image"]','content') || '';
-      if (img && !img.startsWith('http')) try { img = new URL(img, url).href } catch {}
-      return { title, img };
+      return { title };
     } catch {}
   }
-  return { title: dm(url), img: '' };
+  return { title: dm(url) };
 }
 
 async function go() {
@@ -76,7 +98,7 @@ async function go() {
   
   await Promise.all(urls.map(async (url, i) => {
     const m = await fetchMeta(url);
-    document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">${m.img ? `<img src="${esc(imgProxy(m.img))}" alt="" loading="lazy" onerror="this.outerHTML='<div class=np></div>'">` : `<div class="np"></div>`}<div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(m.title)}</div></div></a>`;
+    document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(url)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(m.title)}</div></div></a>`;
     document.getElementById('c' + i).className = 'card';
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
