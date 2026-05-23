@@ -43,7 +43,7 @@ ta.addEventListener('input', () => {
 });
 ta.addEventListener('keydown', () => setTimeout(resize, 0));
 
-const proxies = [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`];
+const proxies = [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`, u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`];
 const dm = u => {try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}};
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -104,7 +104,8 @@ async function go() {
   }));
   
   const enc = btoa(unescape(encodeURIComponent(urls.join('\n'))));
-  msg.innerHTML = `<span onclick="navigator.clipboard.writeText(this.dataset.u).then(()=>this.textContent='✓ copied')" data-u="${esc(`${location.origin}${location.pathname}?g=${enc}`)}">⎘ copy link</span>`;
+  const size = sizeSlider.value;
+  msg.innerHTML = `<span onclick="navigator.clipboard.writeText(this.dataset.u).then(()=>this.textContent='✓ copied')" data-u="${esc(`${location.origin}${location.pathname}?g=${enc}&s=${size}`)}">⎘ copy link</span>`;
 }
 
 const clearAll = () => {
@@ -116,12 +117,14 @@ const clearAll = () => {
 
 (() => {
   const g = new URLSearchParams(location.search).get('g');
+  const s = new URLSearchParams(location.search).get('s');
   if (!g) return;
   document.body.classList.add('grid-only');
   document.querySelector('h1').classList.add('hidden');
   document.querySelector('p').classList.add('hidden');
   document.querySelectorAll('.row').forEach(r => r.classList.add('hidden'));
   document.getElementById('msg').style.display = 'none';
+  if (s) { sizeSlider.value = s; document.documentElement.style.setProperty('--size', s + 'px'); }
   try { ta.value = decodeURIComponent(escape(atob(g))); resize(); go(); } catch {}
 })();
 </script>
