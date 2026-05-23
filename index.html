@@ -43,7 +43,6 @@ ta.addEventListener('input', () => {
 });
 ta.addEventListener('keydown', () => setTimeout(resize, 0));
 
-const proxies = [u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, u => `https://corsproxy.io/?${encodeURIComponent(u)}`, u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`];
 const dm = u => {try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}};
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -73,19 +72,14 @@ function generatePixelArt(url) {
 }
 
 async function fetchMeta(url) {
-  for (const p of proxies) {
-    try {
-      const r = await fetch(p(url), { signal: AbortSignal.timeout(7000) });
-      if (!r.ok) continue;
-      const html = (await r.json()).contents || await r.text();
-      if (typeof html !== 'string') continue;
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const g = (s, a) => doc.querySelector(s)?.getAttribute(a)?.trim() || '';
-      const title = g('meta[property="og:title"]','content') || g('meta[name="twitter:title"]','content') || doc.title || dm(url);
-      return { title };
-    } catch {}
+  try {
+    const r = await fetch(`https://jsonlink.io/api/?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(7000) });
+    if (!r.ok) throw new Error();
+    const data = await r.json();
+    return { title: data.title || dm(url) };
+  } catch {
+    return { title: dm(url) };
   }
-  return { title: dm(url) };
 }
 
 async function go() {
