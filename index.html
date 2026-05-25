@@ -5,17 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>grink</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;background:#fff;color:#000;padding:40px}body.grid-only{padding:20px}h1{font-size:13px;font-weight:normal;margin-bottom:24px}#u{width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block}.row{display:flex;gap:20px;align-items:flex-end;margin-bottom:6px}.row.hidden{display:none}h1.hidden{display:none}p.hidden{display:none}.row button{font-family:inherit;font-size:13px;background:0;border:0;cursor:pointer;color:#000}.row button:hover{text-decoration:underline}#msg{font-size:12px;color:#999;margin-bottom:28px;min-height:16px}#msg span{color:#000;cursor:pointer;text-decoration:underline}#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--size,200px),1fr));gap:1px;background:#e0e0e0;border:1px solid #e0e0e0}#size{width:150px;height:5px;border-radius:5px;background:#ddd;outline:0;-webkit-appearance:none;appearance:none}#size::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer}#size::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer;border:none}.card{background:#fff;overflow:hidden}.card a{display:block;text-decoration:none;color:#000}.card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;filter:grayscale(100%)}.card img:hover{filter:none}.card .np{aspect-ratio:16/9;background:#f5f5f5}.card .info{padding:8px 9px 10px}.card .dm{font-size:10px;color:#999;margin-bottom:2px}.card .tt{font-size:12px;line-height:1.35}.card.loading .np{background:repeating-linear-gradient(90deg,#f0f0f0 0,#e8e8e8 50%,#f0f0f0 100%);background-size:200%;animation:s 1.2s linear infinite}.card.loading .dm,.card.loading .tt{color:#ddd;background:#ddd;border-radius:2px}@keyframes s{0%{background-position:200%}100%{background-position:-200%}}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;background:#fff;color:#000;padding:40px}body.grid-only{padding:20px}h1{font-size:13px;font-weight:normal;margin-bottom:24px}#u{width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block}.row{display:flex;gap:20px;align-items:flex-end;margin-bottom:6px}.row.hidden{display:none}h1.hidden{display:none}p.hidden{display:none}.row button{font-family:inherit;font-size:13px;background:0;border:0;cursor:pointer;color:#000}.row button:hover{text-decoration:underline}#msg{font-size:12px;color:#999;margin-bottom:28px;min-height:16px}#msg span{color:#000;cursor:pointer;text-decoration:underline}#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--size,200px),1fr));gap:1px;background:#e0e0e0;border:1px solid #e0e0e0}#size{width:150px;height:5px;border-radius:5px;background:#ddd;outline:0;-webkit-appearance:none;appearance:none}#size::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer}#size::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer;border:none}.card{background:#fff;overflow:hidden}.card a{display:block;text-decoration:none;color:#000}.card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}.card img:hover{filter:brightness(1.1)}.card .np{aspect-ratio:16/9;background:#f5f5f5}.card .info{padding:8px 9px 10px}.card .dm{font-size:10px;color:#999;margin-bottom:2px}.card .tt{font-size:12px;line-height:1.35}.card .tt:empty::before{content:attr(data-placeholder);color:#ccc}.card.loading .np{background:repeating-linear-gradient(90deg,#f0f0f0 0,#e8e8e8 50%,#f0f0f0 100%);background-size:200%;animation:s 1.2s linear infinite}.card.loading .dm,.card.loading .tt{color:#ddd;background:#ddd;border-radius:2px}@keyframes s{0%{background-position:200%}100%{background-position:-200%}}
 </style>
 </head>
 <body>
 
 <h1><b>⊞ grink:</b> a URL-based link grid generator</h1>
-<p style="font-size:12px;color:#666;margin-bottom:20px;margin-top:-20px">Paste any number of links in the text box, select grid size, click "build", then copy the link to share it. Optionally add titles: <code>url | title</code></p>
-
-<div class="row">
-  <textarea id="gt" placeholder="grid title (optional)" style="width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block;margin-bottom:12px"></textarea>
-</div>
+<p style="font-size:12px;color:#666;margin-bottom:20px;margin-top:-20px">Paste any number of links in the text box, select grid size, click "build", give it a title if you want, then copy the link to share it.</p>
 
 <div class="row">
   <textarea id="u" rows="1" placeholder="paste urls here…"></textarea>
@@ -29,6 +25,7 @@
   <button onclick="clearAll()">⊘ clear</button>
 </div>
 <div id="msg"></div>
+<div id="gt-container" style="display:none;margin-bottom:20px"><input id="gt" type="text" placeholder="grid title" style="width:100%;font-family:inherit;font-size:16px;border:none;border-bottom:2px solid #000;outline:none;padding:0 0 8px;font-weight:500"></div>
 <div id="grid"></div>
 
 <script>
@@ -57,19 +54,87 @@ function generatePixelArt(url) {
     hash = ((hash << 5) - hash) + url.charCodeAt(i);
     hash = hash & hash;
   }
+  
+  // Extract URL characteristics for style variation
+  const urlLen = url.length;
+  const vowelCount = (url.match(/[aeiouAEIOU]/g) || []).length;
+  const numberCount = (url.match(/[0-9]/g) || []).length;
+  const slashCount = (url.match(/\//g) || []).length;
+  const colonCount = (url.match(/:/g) || []).length;
+  const dashCount = (url.match(/[-_]/g) || []).length;
+  const dotCount = (url.match(/\./g) || []).length;
+  
+  // Lightness range: fewer characters = narrower range (40-60), more characters = wider range (0-100)
+  const narrowness = Math.max(0, 1 - (urlLen / 100)); // 1 at 0 chars, 0 at 100+ chars
+  const minLightness = narrowness * 40; // 0-40
+  const maxLightness = 100 - narrowness * 40; // 60-100
+  
+  // Better hue distribution using multiple hash values
+  const hue1 = Math.abs(hash) % 360;
+  const hue2 = Math.abs(hash * 73) % 360;
+  const hue3 = Math.abs(hash * 37) % 360;
+  const baseHue = (hue1 + hue2 + hue3) / 3;
+  
+  const saturation = 50 + (vowelCount % 30);
+  
+  // Multiple clustering factors based on different URL properties
+  const baseClustering = 0.3 + (slashCount % 10) * 0.05; // 0.3-0.8
+  const clusterSize = 1 + (colonCount % 4); // 1-4
+  const clusterDecay = 0.6 + (dashCount % 4) * 0.1; // 0.6-0.9
+  
   const canvas = document.createElement('canvas');
   canvas.width = 200;
   canvas.height = 112;
   const ctx = canvas.getContext('2d');
   let seed = Math.abs(hash);
   const random = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  
   const cols = 40, rows = 22;
   const px = 200 / cols;
   const py = 112 / rows;
+  
   for (let y = 0; y < rows; y++) {
+    let lastR = 128, lastG = 128, lastB = 128;
+    let clusterCounter = 0;
     for (let x = 0; x < cols; x++) {
-      const v = Math.floor(random() * 256);
-      ctx.fillStyle = `rgb(${v},${v},${v})`;
+      let r, g, b;
+      
+      // Variable clustering based on dotCount and position
+      const effectiveClustering = baseClustering * (1 + (dotCount % 5) * 0.1);
+      const shouldCluster = random() < effectiveClustering && clusterCounter < clusterSize;
+      
+      if (shouldCluster) {
+        // Clustering: use similar color to neighbor with variation
+        r = Math.max(0, Math.min(255, lastR + (random() - 0.5) * 100));
+        g = Math.max(0, Math.min(255, lastG + (random() - 0.5) * 100));
+        b = Math.max(0, Math.min(255, lastB + (random() - 0.5) * 100));
+        clusterCounter++;
+      } else {
+        // Reset cluster
+        clusterCounter = 0;
+        
+        // HSL to RGB conversion with full spectrum hue variation
+        const hue = (baseHue + random() * 360) % 360;
+        const s = saturation / 100;
+        const l = (minLightness + random() * (maxLightness - minLightness)) / 100;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const h = hue / 60;
+        const xc = c * (1 - Math.abs((h % 2) - 1));
+        let r1, g1, b1;
+        if (h < 1) { r1 = c; g1 = xc; b1 = 0; }
+        else if (h < 2) { r1 = xc; g1 = c; b1 = 0; }
+        else if (h < 3) { r1 = 0; g1 = c; b1 = xc; }
+        else if (h < 4) { r1 = 0; g1 = xc; b1 = c; }
+        else if (h < 5) { r1 = xc; g1 = 0; b1 = c; }
+        else { r1 = c; g1 = 0; b1 = xc; }
+        const m = l - c / 2;
+        r = Math.round((r1 + m) * 255);
+        g = Math.round((g1 + m) * 255);
+        b = Math.round((b1 + m) * 255);
+      }
+      
+      lastR = r; lastG = g; lastB = b;
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.fillRect(x * px, y * py, px, py);
     }
   }
@@ -85,21 +150,34 @@ async function go() {
   const urls = lines.map(l => { const p = l.split('|'); return { url: p[0].trim(), title: p[1]?.trim() || '' }; });
   if (!urls.length) return;
   const grid = document.getElementById('grid');
+  document.getElementById('gt-container').style.display = 'block';
   grid.innerHTML = urls.map((_, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
   msg.textContent = `⧗ 0 / ${urls.length}`;
   let done = 0;
   
   await Promise.all(urls.map(async (item, i) => {
     const m = item.title || await fetchMeta(item.url);
-    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(item.url)}" alt=""><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true">${esc(typeof m === 'string' ? m : m.title)}</div></div></a>`;
+    const title = typeof m === 'string' ? m : m.title;
+    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(item.url)}" alt=""></a><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true" data-placeholder="Add description..." onblur="if(!this.textContent.trim())this.textContent=''">${esc(title)}</div></div>`;
     document.getElementById('c' + i).className = 'card';
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
   
-  const data = { urls: urls.map(u => u.url), titles: urls.map((u, i) => document.querySelector(`#c${i} .tt`)?.textContent || u.title || dm(u.url)), gridTitle: gt.value };
+  const size = sizeSlider.value;
+  msg.innerHTML = `<span onclick="generateShareLink()" style="font-size:13px;font-family:inherit;background:0;border:0;cursor:pointer;color:#000">⎘ copy link</span>`;
+}
+
+function generateShareLink() {
+  const lines = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
+  const urls = lines.map(l => { const p = l.split('|'); return p[0].trim(); });
+  const updatedTitles = [...document.querySelectorAll('.tt')].map(el => el.textContent || '');
+  const data = { urls: urls, titles: updatedTitles, gridTitle: gt.value };
   const enc = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
   const size = sizeSlider.value;
-  msg.innerHTML = `<span onclick="navigator.clipboard.writeText(this.dataset.u).then(()=>this.textContent='✓ copied')" data-u="${esc(`${location.origin}${location.pathname}?g=${enc}&s=${size}`)}">⎘ copy link</span>`;
+  const shareUrl = `${location.origin}${location.pathname}?g=${enc}&s=${size}`;
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    document.querySelector('#msg span').textContent = '✓ copied';
+  });
 }
 
 const clearAll = () => {
@@ -107,6 +185,7 @@ const clearAll = () => {
   gt.value = '';
   resize();
   document.getElementById('grid').innerHTML = '';
+  document.getElementById('gt-container').style.display = 'none';
   msg.innerHTML = '';
 };
 
@@ -123,10 +202,8 @@ const clearAll = () => {
   try {
     const data = JSON.parse(decodeURIComponent(escape(atob(g))));
     if (data.gridTitle) {
-      const title = document.createElement('h2');
-      title.textContent = data.gridTitle;
-      title.style.cssText = 'font-size:16px;font-weight:normal;margin-bottom:24px;text-align:center';
-      document.body.insertBefore(title, document.getElementById('grid'));
+      gt.value = data.gridTitle;
+      document.getElementById('gt-container').style.display = 'block';
     }
     const urls = data.urls || data.split('\n');
     ta.value = urls.join('\n');
@@ -136,7 +213,7 @@ const clearAll = () => {
       grid.innerHTML = urls.map((url, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
       Promise.all(urls.map(async (url, i) => {
         const title = data.titles?.[i] || dm(url);
-        document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(url)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div></a>`;
+        document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${generatePixelArt(url)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div>`;
         document.getElementById('c' + i).className = 'card';
       }));
     }, 0);
