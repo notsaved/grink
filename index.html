@@ -130,8 +130,9 @@ async function go() {
   await Promise.all(urls.map(async (url, i) => {
     const meta = await fetchMeta(url);
     const imgSrc = meta.image || generatePixelArt(url);
-    el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt" contenteditable data-placeholder="Add description…">${esc(meta.title)}</div></div>`;
+    el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt" contenteditable data-placeholder="Add description…">${esc(meta.title)}</div></div></a>`;
     el('c' + i).className = 'card';
+    el('c' + i).querySelector('.tt').addEventListener('click', e => e.stopPropagation());
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
   
@@ -184,7 +185,7 @@ document.querySelectorAll('.tt').forEach(el => el.addEventListener('blur', funct
       const meta = await fetchMeta(url);
       const imgSrc = meta.image || generatePixelArt(url);
       const title = data.titles?.[i] || meta.title;
-      el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div>`;
+      el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div></a>`;
       el('c' + i).className = 'card';
     }));
   } catch (e) {
