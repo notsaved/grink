@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>grink</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;background:#fff;color:#000;padding:40px}body.grid-only{padding:20px}h1{font-size:13px;font-weight:normal;margin-bottom:24px}#u{width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block}.row{display:flex;gap:20px;align-items:flex-end;margin-bottom:6px}.row.hidden{display:none}h1.hidden{display:none}p.hidden{display:none}.row button{font-family:inherit;font-size:13px;background:0;border:0;cursor:pointer;color:#000}.row button:hover{text-decoration:underline}#msg{font-size:12px;color:#999;margin-bottom:28px;min-height:16px}#msg span{color:#000;cursor:pointer;text-decoration:underline}#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--size,200px),1fr));gap:1px;background:#e0e0e0;border:1px solid #e0e0e0}#size{width:150px;height:5px;border-radius:5px;background:#ddd;outline:0;-webkit-appearance:none;appearance:none}#size::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer}#size::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer;border:none}.card{background:#fff;overflow:hidden}.card a{display:block;text-decoration:none;color:#000}.card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}.card img:hover{filter:brightness(1.1)}.card .np{aspect-ratio:16/9;background:#f5f5f5}.card .info{padding:8px 9px 10px}.card .dm{font-size:10px;color:#999;margin-bottom:2px}.card .tt{font-size:12px;line-height:1.35}.card .tt:empty::before{content:attr(data-placeholder);color:#ccc}.card.loading .np{background:repeating-linear-gradient(90deg,#f0f0f0 0,#e8e8e8 50%,#f0f0f0 100%);background-size:200%;animation:s 1.2s linear infinite}.card.loading .dm,.card.loading .tt{color:#ddd;background:#ddd;border-radius:2px}@keyframes s{0%{background-position:200%}100%{background-position:-200%}}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:13px;background:#fff;color:#000;padding:40px}body.grid-only{padding:20px}h1{font-size:13px;font-weight:normal;margin-bottom:24px}#u{width:100%;font-family:inherit;font-size:13px;border:none;border-bottom:1px solid #000;outline:none;padding:0 0 6px;resize:none;overflow:hidden;line-height:1.7;min-height:28px;display:block}.row{display:flex;gap:20px;align-items:flex-end;margin-bottom:6px}.row.hidden{display:none}h1.hidden{display:none}p.hidden{display:none}.row button{font-family:inherit;font-size:13px;background:0;border:0;cursor:pointer;color:#000}.row button:hover{text-decoration:underline}#msg{font-size:12px;color:#999;margin-bottom:28px;min-height:16px}#msg span{color:#000;cursor:pointer;text-decoration:underline}#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--size,200px),1fr));gap:1px;background:#e0e0e0;border:1px solid #e0e0e0}#size{width:150px;height:5px;border-radius:5px;background:#ddd;outline:0;-webkit-appearance:none;appearance:none}#size::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer}#size::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#000;cursor:pointer;border:none}.card{background:#fff;overflow:hidden}.card a{display:block;text-decoration:none;color:#000}.card img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover}.card img:hover{filter:brightness(1.1)}.card .np{aspect-ratio:16/9;background:#f5f5f5}.card .info{padding:8px 9px 10px}.card .dm{font-size:10px;color:#999;margin-bottom:2px}.card .tt{font-size:12px;line-height:1.35;cursor:text}.card .tt:empty::before{content:attr(data-placeholder);color:#ccc}.card.loading .np{background:repeating-linear-gradient(90deg,#f0f0f0 0,#e8e8e8 50%,#f0f0f0 100%);background-size:200%;animation:s 1.2s linear infinite}.card.loading .dm,.card.loading .tt{color:#ddd;background:#ddd;border-radius:2px}@keyframes s{0%{background-position:200%}to{background-position:-200%}}#gt-container{display:none;margin-bottom:20px}#gt{width:100%;font-family:inherit;font-size:16px;border:none;border-bottom:2px solid #000;outline:none;padding:0 0 8px;font-weight:500}
 </style>
 </head>
 <body>
@@ -21,121 +21,81 @@
   <input id="size" type="range" min="150" max="350" value="200">
 </div>
 <div class="row">
-  <button onclick="go()">▶ build</button>
-  <button onclick="clearAll()">⊘ clear</button>
+  <button id="buildBtn">▶ build</button>
+  <button id="clearBtn">⊘ clear</button>
 </div>
 <div id="msg"></div>
-<div id="gt-container" style="display:none;margin-bottom:20px"><input id="gt" type="text" placeholder="grid title" style="width:100%;font-family:inherit;font-size:16px;border:none;border-bottom:2px solid #000;outline:none;padding:0 0 8px;font-weight:500"></div>
+<div id="gt-container"><input id="gt" type="text" placeholder="grid title"></div>
 <div id="grid"></div>
 
 <script>
-const ta = document.getElementById('u');
-const gt = document.getElementById('gt');
-const msg = document.getElementById('msg');
-const sizeSlider = document.getElementById('size');
-sizeSlider?.addEventListener('input', () => document.documentElement.style.setProperty('--size', sizeSlider.value + 'px'));
+const el = (id) => document.getElementById(id);
+const ta = el('u'), gt = el('gt'), msg = el('msg'), grid = el('grid'), gtc = el('gt-container');
+const sizeSlider = el('size');
+
+sizeSlider.addEventListener('input', () => document.documentElement.style.setProperty('--size', sizeSlider.value + 'px'));
 
 const resize = () => ta.style.height = ta.scrollHeight + 'px';
 ta.addEventListener('input', () => {
-  if (/https?:\/\/\S{4,}[^\s\n]$/.test(ta.value)) {
-    ta.value += '\n';
-    ta.setSelectionRange(ta.value.length, ta.value.length);
-  }
+  if (/https?:\/\/\S{4,}[^\s\n]$/.test(ta.value)) ta.value += '\n';
   resize();
 });
-ta.addEventListener('keydown', () => setTimeout(resize, 0));
 
 const dm = u => {try{return new URL(u).hostname.replace(/^www\./,'')}catch{return u}};
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+const hslToRgb = (h, s, l) => {
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  let r1, g1, b1;
+  if (h < 60) [r1, g1, b1] = [c, x, 0];
+  else if (h < 120) [r1, g1, b1] = [x, c, 0];
+  else if (h < 180) [r1, g1, b1] = [0, c, x];
+  else if (h < 240) [r1, g1, b1] = [0, x, c];
+  else if (h < 300) [r1, g1, b1] = [x, 0, c];
+  else [r1, g1, b1] = [c, 0, x];
+  const m = l - c / 2;
+  return [Math.round((r1 + m) * 255), Math.round((g1 + m) * 255), Math.round((b1 + m) * 255)];
+};
+
 function generatePixelArt(url) {
   let hash = 0;
-  for (let i = 0; i < url.length; i++) {
-    hash = ((hash << 5) - hash) + url.charCodeAt(i);
-    hash = hash & hash;
-  }
+  for (let i = 0; i < url.length; i++) hash = ((hash << 5) - hash) + url.charCodeAt(i);
   
-  // Extract URL characteristics for style variation
-  const urlLen = url.length;
-  const vowelCount = (url.match(/[aeiouAEIOU]/g) || []).length;
-  const numberCount = (url.match(/[0-9]/g) || []).length;
-  const slashCount = (url.match(/\//g) || []).length;
-  const colonCount = (url.match(/:/g) || []).length;
-  const dashCount = (url.match(/[-_]/g) || []).length;
-  const dotCount = (url.match(/\./g) || []).length;
-  
-  // Lightness range: fewer characters = narrower range (40-60), more characters = wider range (0-100)
-  const narrowness = Math.max(0, 1 - (urlLen / 100)); // 1 at 0 chars, 0 at 100+ chars
-  const minLightness = narrowness * 40; // 0-40
-  const maxLightness = 100 - narrowness * 40; // 60-100
-  
-  // Better hue distribution using multiple hash values
-  const hue1 = Math.abs(hash) % 360;
-  const hue2 = Math.abs(hash * 73) % 360;
-  const hue3 = Math.abs(hash * 37) % 360;
-  const baseHue = (hue1 + hue2 + hue3) / 3;
-  
-  const saturation = 50 + (vowelCount % 30);
-  
-  // Multiple clustering factors based on different URL properties
-  const baseClustering = 0.3 + (slashCount % 10) * 0.05; // 0.3-0.8
-  const clusterSize = 1 + (colonCount % 4); // 1-4
-  const clusterDecay = 0.6 + (dashCount % 4) * 0.1; // 0.6-0.9
+  const vowels = (url.match(/[aeiou]/gi) || []).length;
+  const slashes = (url.match(/\//g) || []).length;
+  const colons = (url.match(/:/g) || []).length;
   
   const canvas = document.createElement('canvas');
-  canvas.width = 200;
-  canvas.height = 112;
+  canvas.width = 200; canvas.height = 112;
   const ctx = canvas.getContext('2d');
   let seed = Math.abs(hash);
-  const random = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  const rand = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   
-  const cols = 40, rows = 22;
-  const px = 200 / cols;
-  const py = 112 / rows;
+  const clustering = 0.3 + (slashes % 10) * 0.05;
+  const clusterSize = 1 + (colons % 4);
+  const baseHue = ((Math.abs(hash) % 360) + (Math.abs(hash * 73) % 360) + (Math.abs(hash * 37) % 360)) / 3;
+  const sat = (50 + (vowels % 30)) / 100;
+  const narrow = Math.max(0, 1 - url.length / 100);
+  const minL = (narrow * 40) / 100, maxL = (100 - narrow * 40) / 100;
   
-  for (let y = 0; y < rows; y++) {
-    let lastR = 128, lastG = 128, lastB = 128;
-    let clusterCounter = 0;
-    for (let x = 0; x < cols; x++) {
-      let r, g, b;
-      
-      // Variable clustering based on dotCount and position
-      const effectiveClustering = baseClustering * (1 + (dotCount % 5) * 0.1);
-      const shouldCluster = random() < effectiveClustering && clusterCounter < clusterSize;
-      
-      if (shouldCluster) {
-        // Clustering: use similar color to neighbor with variation
-        r = Math.max(0, Math.min(255, lastR + (random() - 0.5) * 100));
-        g = Math.max(0, Math.min(255, lastG + (random() - 0.5) * 100));
-        b = Math.max(0, Math.min(255, lastB + (random() - 0.5) * 100));
-        clusterCounter++;
+  for (let y = 0; y < 22; y++) {
+    let [lastR, lastG, lastB] = [128, 128, 128];
+    let cluster = 0;
+    for (let x = 0; x < 40; x++) {
+      let [r, g, b] = [lastR, lastG, lastB];
+      if (rand() < clustering && cluster < clusterSize) {
+        r = Math.max(0, Math.min(255, lastR + (rand() - 0.5) * 100));
+        g = Math.max(0, Math.min(255, lastG + (rand() - 0.5) * 100));
+        b = Math.max(0, Math.min(255, lastB + (rand() - 0.5) * 100));
+        cluster++;
       } else {
-        // Reset cluster
-        clusterCounter = 0;
-        
-        // HSL to RGB conversion with full spectrum hue variation
-        const hue = (baseHue + random() * 360) % 360;
-        const s = saturation / 100;
-        const l = (minLightness + random() * (maxLightness - minLightness)) / 100;
-        const c = (1 - Math.abs(2 * l - 1)) * s;
-        const h = hue / 60;
-        const xc = c * (1 - Math.abs((h % 2) - 1));
-        let r1, g1, b1;
-        if (h < 1) { r1 = c; g1 = xc; b1 = 0; }
-        else if (h < 2) { r1 = xc; g1 = c; b1 = 0; }
-        else if (h < 3) { r1 = 0; g1 = c; b1 = xc; }
-        else if (h < 4) { r1 = 0; g1 = xc; b1 = c; }
-        else if (h < 5) { r1 = xc; g1 = 0; b1 = c; }
-        else { r1 = c; g1 = 0; b1 = xc; }
-        const m = l - c / 2;
-        r = Math.round((r1 + m) * 255);
-        g = Math.round((g1 + m) * 255);
-        b = Math.round((b1 + m) * 255);
+        cluster = 0;
+        const l = minL + rand() * (maxL - minL);
+        [r, g, b] = hslToRgb((baseHue + rand() * 360) % 360, sat, l);
       }
-      
-      lastR = r; lastG = g; lastB = b;
+      [lastR, lastG, lastB] = [r, g, b];
       ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.fillRect(x * px, y * py, px, py);
+      ctx.fillRect(x * 5, y * 5.09, 5.1, 5.1);
     }
   }
   return canvas.toDataURL();
@@ -143,98 +103,94 @@ function generatePixelArt(url) {
 
 async function fetchMeta(url) {
   try {
-    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { timeout: 5000 });
-    if (!response.ok) throw new Error('Fetch failed');
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    
-    const title = doc.querySelector('meta[property="og:title"]')?.getAttribute('content')
-                  || doc.querySelector('title')?.textContent
-                  || dm(url);
-    const image = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
-    
-    return { title, image };
-  } catch (error) {
-    return { title: dm(url), image: null };
+    const ctl = new AbortController();
+    const tid = setTimeout(() => ctl.abort(), 8000);
+    const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`, {signal: ctl.signal});
+    clearTimeout(tid);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    if (!d.data) throw new Error('No data');
+    return {title: d.data.title || dm(url), image: d.data.image?.url || null};
+  } catch (e) {
+    console.warn('✗', url, e.message);
+    return {title: dm(url), image: null};
   }
 }
 
+const parseUrls = () => ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
+
 async function go() {
-  const lines = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
-  const urls = lines.map(l => { const p = l.split('|'); return { url: p[0].trim(), title: p[1]?.trim() || '' }; });
+  const urls = parseUrls();
   if (!urls.length) return;
-  const grid = document.getElementById('grid');
-  document.getElementById('gt-container').style.display = 'block';
+  gtc.style.display = 'block';
   grid.innerHTML = urls.map((_, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
   msg.textContent = `⧗ 0 / ${urls.length}`;
   let done = 0;
   
-  await Promise.all(urls.map(async (item, i) => {
-    const m = item.title ? { title: item.title } : await fetchMeta(item.url);
-    const title = m.title;
-    const imgSrc = m.image || generatePixelArt(item.url);
-    document.getElementById('c' + i).innerHTML = `<a href="${esc(item.url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(item.url))}</div><div class="tt" contenteditable="true" data-placeholder="Add description..." onblur="if(!this.textContent.trim())this.textContent=''">${esc(title)}</div></div>`;
-    document.getElementById('c' + i).className = 'card';
+  await Promise.all(urls.map(async (url, i) => {
+    const meta = await fetchMeta(url);
+    const imgSrc = meta.image || generatePixelArt(url);
+    el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt" contenteditable data-placeholder="Add description…">${esc(meta.title)}</div></div>`;
+    el('c' + i).className = 'card';
     msg.textContent = `⧗ ${++done} / ${urls.length}`;
   }));
   
-  const size = sizeSlider.value;
-  msg.innerHTML = `<span onclick="generateShareLink()" style="font-size:13px;font-family:inherit;background:0;border:0;cursor:pointer;color:#000">⎘ copy link</span>`;
+  msg.innerHTML = '<span id="copyBtn">⎘ copy link</span>';
+  el('copyBtn').addEventListener('click', generateShareLink);
 }
 
 function generateShareLink() {
-  const lines = ta.value.split('\n').map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
-  const urls = lines.map(l => { const p = l.split('|'); return p[0].trim(); });
-  const updatedTitles = [...document.querySelectorAll('.tt')].map(el => el.textContent || '');
-  const data = { urls: urls, titles: updatedTitles, gridTitle: gt.value };
-  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-  const size = sizeSlider.value;
-  const shareUrl = `${location.origin}${location.pathname}?g=${enc}&s=${size}`;
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    document.querySelector('#msg span').textContent = '✓ copied';
-  });
+  const urls = parseUrls();
+  const titles = [...document.querySelectorAll('.tt')].map(el => el.textContent || '');
+  const data = {urls, titles, gridTitle: gt.value};
+  const enc = btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(data))));
+  const url = `${location.origin}${location.pathname}?g=${enc}&s=${sizeSlider.value}`;
+  navigator.clipboard.writeText(url).then(() => el('copyBtn').textContent = '✓ copied');
 }
 
 const clearAll = () => {
-  ta.value = '';
-  gt.value = '';
-  resize();
-  document.getElementById('grid').innerHTML = '';
-  document.getElementById('gt-container').style.display = 'none';
+  ta.value = gt.value = '';
+  grid.innerHTML = '';
+  gtc.style.display = 'none';
   msg.innerHTML = '';
+  resize();
 };
 
+el('buildBtn').addEventListener('click', go);
+el('clearBtn').addEventListener('click', clearAll);
+
+document.querySelectorAll('.tt').forEach(el => el.addEventListener('blur', function() {
+  if (!this.textContent.trim()) this.textContent = '';
+}));
+
 (() => {
-  const g = new URLSearchParams(location.search).get('g');
-  const s = new URLSearchParams(location.search).get('s');
+  const params = new URLSearchParams(location.search);
+  const g = params.get('g'), s = params.get('s');
   if (!g) return;
+  
   document.body.classList.add('grid-only');
   document.querySelector('h1').classList.add('hidden');
   document.querySelector('p').classList.add('hidden');
-  document.querySelectorAll('.row').forEach(r => r.classList.add('hidden'));
-  document.getElementById('msg').style.display = 'none';
-  if (s) { sizeSlider.value = s; document.documentElement.style.setProperty('--size', s + 'px'); }
+  [...document.querySelectorAll('.row')].forEach(r => r.classList.add('hidden'));
+  msg.style.display = 'none';
+  if (s) {sizeSlider.value = s; document.documentElement.style.setProperty('--size', s + 'px');}
+  
   try {
-    const data = JSON.parse(decodeURIComponent(escape(atob(g))));
-    if (data.gridTitle) {
-      gt.value = data.gridTitle;
-      document.getElementById('gt-container').style.display = 'block';
-    }
-    const urls = data.urls || data.split('\n');
-    ta.value = urls.join('\n');
-    resize();
-    setTimeout(() => {
-      const grid = document.getElementById('grid');
-      grid.innerHTML = urls.map((url, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
-      Promise.all(urls.map(async (url, i) => {
-        const title = data.titles?.[i] || (await fetchMeta(url)).title;
-        const meta = await fetchMeta(url);
-        const imgSrc = meta.image || generatePixelArt(url);
-        document.getElementById('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div>`;
-        document.getElementById('c' + i).className = 'card';
-      }));
-    }, 0);
-  } catch {}
+    const data = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(g), c => c.charCodeAt(0))));
+    if (data.gridTitle) {gt.value = data.gridTitle; gtc.style.display = 'block';}
+    const urls = data.urls || [];
+    grid.innerHTML = urls.map((_, i) => `<div class="card loading" id="c${i}"><div class="np"></div><div class="info"><div class="dm">&nbsp;</div><div class="tt">&nbsp;</div></div></div>`).join('');
+    Promise.all(urls.map(async (url, i) => {
+      const meta = await fetchMeta(url);
+      const imgSrc = meta.image || generatePixelArt(url);
+      const title = data.titles?.[i] || meta.title;
+      el('c' + i).innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener"><img src="${esc(imgSrc)}" alt=""></a><div class="info"><div class="dm">${esc(dm(url))}</div><div class="tt">${esc(title)}</div></div>`;
+      el('c' + i).className = 'card';
+    }));
+  } catch (e) {
+    console.error('Failed to load grid:', e);
+    grid.innerHTML = '<p style="color:#999">Failed to load grid</p>';
+  }
 })();
 </script>
 </body>
